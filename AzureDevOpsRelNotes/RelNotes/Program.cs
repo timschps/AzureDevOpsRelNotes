@@ -23,7 +23,7 @@ namespace RelNotes
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+      
             VssConnection connection = GetVssConnection();
 
             ProjectHttpClient projectClient = connection.GetClient<ProjectHttpClient>();
@@ -41,9 +41,6 @@ namespace RelNotes
             {
                 Status = PullRequestStatus.Completed,
                 IncludeLinks = true,
-
-
-
             };
             List<GitPullRequest> allPullRequests = new List<GitPullRequest>();
             int skip = 0;
@@ -62,30 +59,24 @@ namespace RelNotes
                         pr.SourceRefName,
                         pr.TargetRefName,
                         pr.CreatedBy.DisplayName);
-
+                    //var prcommits = gitClient.GetPullRequestCommitsAsync(repo.Id, pr.PullRequestId).Result;
+                    var tags = gitClient.GetTagRefsAsync(repo.Id).Result;
                     var prlinks = gitClient.GetPullRequestWorkItemRefsAsync(project.Id, repo.Id, pr.PullRequestId).Result;
                     if (prlinks != null)
                     {
                         var wis = prlinks.ToList();
                         foreach (var wi in wis)
                         {
-                            
-                            Console.WriteLine($"\t\t{wi.Id}");
+                            var workitem = witClient.GetWorkItemAsync(int.Parse(wi.Id)).Result;
+                            Console.WriteLine($"\t\t{wi.Id} - {workitem.Fields["System.Title"]}");
                         }
                     }
                     else
                     {
                         Console.WriteLine("\t\tNo links found");
                     }
-
                 }
             }
-
-
-
-            // Create instance of WorkItemTrackingHttpClient using VssConnection
-
-            
         }
 
         private static VssConnection GetVssConnection()
